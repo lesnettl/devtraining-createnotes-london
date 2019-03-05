@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[//function() {
+  /* widget controller */
+//  var c = this;
+//}
+
+function($rootScope,$scope) {
+	/* widget controller */
+	var c = this;
+	c.selectItem = function(idx) {
+		var selectedNote = c.data.notes[idx];
+		var number = selectedNote.number;
+		var id = selectedNote.sys_id;
+		var noteTitle = selectedNote.title;
+		var noteDetail = selectedNote.note;
+		console.log("Note ID Emitted: " + id + "\nNote Title: " + noteTitle + "\nNote Details: " + noteDetail + "\nNote Number: " + number);
+		$rootScope.noteID = id;
+		$rootScope.$emit('selectNote', id);
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>notes_list</id>
+        <internal>false</internal>
+        <link/>
+        <name>Notes List</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	/* populate the 'data' object */
+	/* e.g., data.table = $sp.getValue('table'); */
+	
+	//create an array to populate without notes
+	data.notes = [];
+	var noteGR = new GlideRecord('x_snc_createnotes_note');
+	noteGR.addQuery('user', gs.getUser().getID());
+	noteGR.orderByDesc('sys_created_on');
+	noteGR.query();
+	while (noteGR.next()) {
+		var noteObj = {};
+		//use service portal helper method to get some display values
+		$sp.getRecordDisplayValues(noteObj, noteGR, 'number,title,sys_id,sys_created_on,sys_updated_on');
+		//get the first 20 characters of the description
+		noteObj.note = noteGR.getValue('note').slice(0,230);
+		//push the populated obj into the array
+		data.notes.push(noteObj);
+	}
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-04 03:56:29</sys_created_on>
+        <sys_id>8e3e3f504f44b300bde238a18110c747</sys_id>
+        <sys_mod_count>24</sys_mod_count>
+        <sys_name>Notes List</sys_name>
+        <sys_package display_value="CreateNotes" source="x_snc_createnotes">df5fd9a5090232007f44e1046c8ff69f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CreateNotes">df5fd9a5090232007f44e1046c8ff69f</sys_scope>
+        <sys_update_name>sp_widget_8e3e3f504f44b300bde238a18110c747</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-05 03:58:52</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default">
+  <div class="panel-heading clearfix">
+    <h3 class="panel-title pull-left">
+      ${Notes}
+    </h3>
+  </div>
+  <div class="list-group">
+    <a class="list-group-item" ng-click="c.selectItem($index)" ng-repeat="note in data.notes">
+      <h4 class="list-group-item-heading">
+        Title: {{note.title}}
+      </h4>
+      <p class="list-group-item-text">
+        Number: {{note.number}}
+      </p>
+      <p class="list-group-item-text">
+        Note: {{note.note}}
+      </p>
+      <p class="list-group-item-text">
+        Created: {{note.sys_created_on}}
+      </p>
+      <p class="list-group-item-text">
+        Updated: {{note.sys_updated_on}}
+      </p>
+    </a>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>
